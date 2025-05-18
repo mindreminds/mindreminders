@@ -1,1 +1,36 @@
-a
+# fluxograma criado no mermaidchart
+
+# flowchart TD
+    %% Administrador
+    A[Administrador faz login] --> B{Login válido?}
+    B -- Não --> Z1[Fim]
+    B -- Sim --> C[Controle de Usuários/Controle de Matérias]
+    C --> D{Deseja cadastrar usuários/Controle de matérias?}
+    D -- Sim --> E[Administra cadastro de Professores, Alunos e Matérias]
+    D -- Não --> F[Logout]
+
+    %% Professores
+    E --> G[Professor faz login]
+    G --> H{Login válido?}
+    H -- Não --> Z2[Fim]
+    H -- Sim --> I[Criar Lembretes]
+    I --> J{Deseja criar lembrete?}
+    J -- Sim --> K[Cria lembretes conforme necessidade]
+    J -- Não --> L[Logout]
+    K --> M[Sistema envia notificação aos alunos]
+
+    %% Alunos
+    M --> N[Aluno faz login]
+    N --> O{Login válido?}
+    O -- Não --> Z3[Fim]
+    O -- Sim --> P[Gerenciar Lembretes]
+    P --> Q[Recebe notificação de lembrete criado pelo professor]
+    Q --> R[Visualiza lembrete]
+    R --> S[Marcar como concluído]
+
+
+
+    %% Fins
+    F --> Z1
+    L --> Z2
+    S --> Z3
