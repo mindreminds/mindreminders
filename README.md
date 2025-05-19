@@ -114,7 +114,7 @@ Este projeto é um sistema de lembretes acadêmicos desenvolvido em [Streamlit](
 - Login (todos os perfis)
 - Lembretes personalizados (aluno)
 - Criação de lembretes (professor)
-- Troca de Senha (todos)
+- Troca de Senha (admin/professor)
 - Controle de Usuários (admin)
 - Cadastro de Matérias (admin)
 - Vincular Alunos a Matérias (admin)
