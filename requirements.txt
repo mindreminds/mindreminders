@@ -4,6 +4,5 @@ streamlit-option-menu==0.3.6
 pytz
 Pillow
 psycopg2-binary==2.9.10
-matplotlib
+altair
 pandas
-plotly.express

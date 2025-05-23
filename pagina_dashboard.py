@@ -1,9 +1,8 @@
 import streamlit as st
-import matplotlib.pyplot as plt
 from collections import Counter, defaultdict
 from datetime import datetime
+import altair as alt
 import pandas as pd
-import plotly.express as px
 
 def gerar_dashboard(cursor):
     st.markdown("<h2 style='text-align:center;'>📊 Visão Geral dos Meus Lembretes - Gestão da Tecnologia da Informação</h2>", unsafe_allow_html=True)
@@ -14,9 +13,29 @@ def gerar_dashboard(cursor):
         return
 
     # Filtros
+    # Mapeamento rótulo legível → valor técnico
+    status_opcoes = {
+        "Pendente": "pendente",
+        "Concluído": "concluído",
+        "Atrasado": "atrasado",
+        "Concluído com atraso": "concluído_atrasado"
+    }
+
     st.sidebar.markdown("### Filtros do Dashboard")
-    filtro_status = st.sidebar.multiselect("Filtrar por status", ["pendente", "concluído", "atrasado"], default=["pendente", "concluído", "atrasado"])
+
+    # Filtro com rótulos legíveis
+    status_legivel = st.sidebar.multiselect(
+        "Filtrar por status",
+        list(status_opcoes.keys()),
+        default=list(status_opcoes.keys())
+    )
+
+    # Converter para os valores técnicos
+    filtro_status = [status_opcoes[s] for s in status_legivel]
+
+    # Filtro por tipo (sem mudanças)
     filtro_tipo = st.sidebar.text_input("Filtrar por tipo (ex: prova, trabalho)").strip().lower()
+
 
     query = """
         SELECT al.status,
@@ -48,32 +67,86 @@ def gerar_dashboard(cursor):
         st.warning("Nenhum lembrete encontrado com os filtros selecionados.")
         return
 
-    # Gráfico de Pizza por status
+    # Preparar dados para Altair
     contagem = Counter([s for s, _, _, _ in dados])
-    labels = [s.capitalize() for s in contagem.keys()]
-    valores = list(contagem.values())
-    cores = ["#ffc107" if s == "pendente" else "#28a745" if s == "concluído" else "#dc3545" for s in contagem.keys()]
+    df_status = pd.DataFrame(contagem.items(), columns=["status", "total"])
+    df_status['status_formatado'] = df_status['status'].map({
+        "pendente": "Pendente",
+        "concluído": "Concluído",
+        "atrasado": "Atrasado",
+        "concluído_atrasado": "Concluído com atraso"
+    })
+    df_status['percentual'] = df_status['total'] / df_status['total'].sum() * 100
+    df_status['label'] = df_status.apply(lambda row: f"{row['percentual']:.1f}% ({row['total']})", axis=1)
 
-    fig1, ax1 = plt.subplots(figsize=(6, 6))
-    wedges, texts, autotexts = ax1.pie(
-        valores,
-        labels=None,
-        colors=cores,
-        autopct=lambda pct: f"{pct:.1f}% ({int(round(pct/100.*sum(valores)))})",
-        startangle=90,
-        wedgeprops=dict(width=0.4, edgecolor='white'),
-        textprops=dict(color="black", fontsize=12),
-        pctdistance=1.2
-    )
-    ax1.axis("equal")
-    ax1.legend(wedges, labels, title="Status", loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
-    st.pyplot(fig1)
+    # Cores
+    cores_status = {
+        "pendente": "#ffc107",
+        "concluído": "#28a745",
+        "atrasado": "#dc3545",
+        "concluído_atrasado": "#ff5733"
+    }
+    df_status['cor'] = df_status['status'].map(cores_status)
 
-    # Gráfico de Barras por Tipo
+    # Gráfico principal
+    chart = alt.Chart(df_status).mark_arc(innerRadius=60).encode(
+        theta=alt.Theta(field="total", type="quantitative"),
+        color=alt.Color(
+            "status_formatado:N",
+            scale=alt.Scale(range=df_status['cor'].tolist()),
+            legend=alt.Legend(
+                title="Status",
+                orient="right",
+                direction="horizontal",
+                columns=2
+            )
+        ),
+        tooltip=[
+            alt.Tooltip("status_formatado:N", title="Status"),
+            alt.Tooltip("total:Q", title="Total"),
+            alt.Tooltip("percentual:Q", title="%", format=".1f")
+        ]
+    ).properties(height=600)
+
+    st.altair_chart(chart, use_container_width=True)
+
     st.markdown("### 📘 Distribuição por Tipo de Lembrete")
+
+    # Dados de tipos
     tipos = [tipo for _, tipo, _, _ in dados]
     tipo_counts = Counter(tipos)
-    fig2, ax2 = plt.subplots()
-    ax2.bar(tipo_counts.keys(), tipo_counts.values(), color="#4a90e2")
-    ax2.legend().remove() if ax2.get_legend() else None    
-    st.pyplot(fig2)
+    df_tipos = pd.DataFrame(tipo_counts.items(), columns=["tipo", "total"])
+
+    # Ordenar por total
+    df_tipos = df_tipos.sort_values(by="total", ascending=False)
+    df_tipos['total_formatado'] = df_tipos['total'].apply(lambda x: f'{x / 1_000_000:.1f}M'.replace('.', ',') if x >= 1_000_000 else str(x))
+    df_tipos['tipo'] = pd.Categorical(df_tipos['tipo'], categories=df_tipos['tipo'], ordered=True)
+
+    # Gráfico
+    chart = alt.Chart(df_tipos).mark_bar(color='#4a90e2').encode(
+        x=alt.X('tipo:N', title='', sort=list(df_tipos['tipo'])),
+        y=alt.Y(
+            'total:Q',
+            title='',
+            axis=alt.Axis(labelExpr="datum.value >= 1000000 ? (datum.value / 1000000) + 'M' : datum.value"),
+            scale=alt.Scale(domain=[0, df_tipos['total'].max() * 1.1])
+        ),
+        tooltip=[
+            alt.Tooltip('tipo:N', title='Tipo'),
+            alt.Tooltip('total:Q', title='Total de Lembretes', format=',')
+        ]
+    ).properties(height=600)
+
+    # Texto acima das barras
+    text = chart.mark_text(
+        align='center',
+        baseline='bottom',
+        dy=-4,
+        color='black'
+    ).encode(
+        text='total_formatado:N'
+    )
+
+    # Exibir no Streamlit
+    st.altair_chart(chart + text, use_container_width=True)
+

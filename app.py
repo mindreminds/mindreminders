@@ -38,14 +38,13 @@ if not is_authenticated():
     st.stop()
     
 # Carregar logos
-logo_astronauta = Image.open("logo.png")
-logo_century = Image.open("logo_site.png")
+logo = Image.open("logo.png")
 
 # Configurações da página com o logo
 st.set_page_config(page_title="Mind Reminders", page_icon="Century_mini_logo-32x32.png", layout="wide")
 # Filtros e seleção de período
 with st.sidebar:
-    st.image(logo_century, width=150)
+    st.image(logo, width=150)
 
     # Determinar opções do menu com base na role
     menu_options = []
@@ -92,7 +91,7 @@ elif selected_tab == "Criar Lembretes":
     col1, col2 = st.columns([1, 3])
 
     with col1:
-        st.image(logo_astronauta, width=150)
+        st.image(logo, width=150)
 
     with col2:
         st.markdown("<h2></h2>", unsafe_allow_html=True)
@@ -108,7 +107,7 @@ elif selected_tab == "Trocar Senha":
         col1, col2 = st.columns([1, 3])
 
         with col1:
-            st.image(logo_astronauta, width=150)
+            st.image(logo, width=150)
 
         with col2:
                 st.markdown("<h2></h2>", unsafe_allow_html=True)
@@ -120,7 +119,7 @@ elif selected_tab == "Controle de usuários":
         col1, col2 = st.columns([1, 3])
 
         with col1:
-            st.image(logo_astronauta, width=150)
+            st.image(logo, width=150)
 
         with col2:
             st.markdown("<h2></h2>", unsafe_allow_html=True)
@@ -135,7 +134,7 @@ elif selected_tab == "Controle de Matérias":
         col1, col2 = st.columns([1, 3])
 
         with col1:
-            st.image(logo_astronauta, width=150)
+            st.image(logo, width=150)
 
         with col2:
             st.markdown("<h2></h2>", unsafe_allow_html=True)
@@ -150,7 +149,7 @@ elif selected_tab == "Vincular Alunos para Matérias":
         col1, col2 = st.columns([1, 3])
 
         with col1:
-            st.image(logo_astronauta, width=150)
+            st.image(logo, width=150)
 
         with col2:
             st.markdown("<h2></h2>", unsafe_allow_html=True)
@@ -165,7 +164,7 @@ elif selected_tab == "Exportar Dados":
     col1, col2 = st.columns([1, 3])
 
     with col1:
-        st.image(logo_astronauta, width=150)
+        st.image(logo, width=150)
 
     with col2:
         st.markdown("<h2></h2>", unsafe_allow_html=True)
@@ -176,7 +175,7 @@ elif selected_tab == "Gerenciar Lembretes":
     col1, col2 = st.columns([1, 3]) 
 
     with col1:
-        st.image(logo_astronauta, width=150)
+        st.image(logo, width=150)
 
     with col2:
         st.markdown("<h2></h2>", unsafe_allow_html=True)

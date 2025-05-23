@@ -27,13 +27,6 @@ def gerar_email_institucional(tipo, dados):
         <a href='{link_sistema}' style='display:inline-block; padding:10px 20px; background:#004080; color:#fff; text-decoration:none; border-radius:5px; margin-top:15px;'>Acessar o Sistema</a>
         """
 
-    elif tipo == "upload_certificado":
-        body = f"""
-        <h2 style='color:#004080;'>📄 Novo Certificado Enviado</h2>
-        <p>O usuário <strong>{dados['nome']}</strong> realizou o upload de um novo certificado.</p>
-        <p><b>Arquivo:</b> {dados['arquivo']}</p>
-        """
-
     elif tipo == "redefinir_senha":
         body = f"""
         <h2 style='color:#004080;'>🔑 Redefinição de Senha</h2>

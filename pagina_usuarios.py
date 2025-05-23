@@ -63,7 +63,7 @@ def criar_usuario(cursor, conn):
             "nome": nome,
             "username": username,
             "senha": senha_gerada,
-            "link_sistema": "https://centurydata-certificados.streamlit.app/"
+            "link_sistema": "https://mindreminders.streamlit.app/"
         })
 
         subject = "Seus dados de acesso - Mind Reminders"
@@ -136,10 +136,10 @@ def gerenciar_usuarios(cursor, conn):
                     body = gerar_email_institucional("redefinir_senha", {
                         "nome": usuario.get("nome", ""),
                         "senha": nova_senha,
-                        "link_sistema": "https://centurydata-certificados.streamlit.app/"
+                        "link_sistema": "https://mindreminders.streamlit.app/"
                     })
 
-                    subject = "🔒 Redefinição de senha - Century Data"
+                    subject = "🔒 Redefinição de senha - Mind Reminders"
                     sender = st.secrets['smtp']['sender']
                     recipient = usuario.get("username", "")
                     password_smtp = st.secrets['smtp']['password']
